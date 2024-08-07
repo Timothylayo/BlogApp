@@ -1,0 +1,14 @@
+﻿@using BlogApp.Data
+@using BlogApp.Components.Layout
+@using BlogApp.Repositories
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@layout AdminLayout
+
+
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IBlogPostAdminRepository BlogPostAdminRepository
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize]

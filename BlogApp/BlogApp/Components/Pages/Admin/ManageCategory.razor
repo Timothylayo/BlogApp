@@ -1,0 +1,96 @@
+﻿@page "/admin/manage/categories"
+@using BlogAppSharedProject.Models
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@inject ICategoryRepository CategoryRepository
+
+<PageTitle>Manage Categories</PageTitle>
+
+<AdminHeader Title="Manage Categories">
+    <ActionButtons>
+        <button type="button" class="btn btn-primary btn-sm" @onclick="() => model = new()">+ Add New Category</button>
+    </ActionButtons>
+</AdminHeader>
+
+@if (model is not null)
+{
+    <div class="row">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6">
+            <EditForm Model="model" OnValidSubmit="SaveCategoryAsync">
+                <DataAnnotationsValidator />
+                <div class="shadow p-3" style="display:grid; grid-template-columns: auto 150px; grid-column-gap:15px">
+                    <div>
+                        <label class="form-label">Category Name</label>
+                        <InputText @bind-Value="model!.Name" class="form-control form-control-sm" placeholder="Category Name" />
+                        <ValidationMessage For="()=> model.Name" />
+                        <label class="form-label mt-2">
+                            <InputCheckbox @bind-Value="model.ShowOnNavbar" />
+                            Show on Navbar
+                        </label>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <button type="submit" class="btn btn-sm btn-success mb-2">Save</button>
+                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => model = null">Cancel</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<QuickGrid Items="@categories" class="table table-bordered table-striped table-hover">
+    <PropertyColumn Property="@(t => t.Id)"/>
+    <PropertyColumn Property="@(t => t.Name)"/>
+    <PropertyColumn Property="@(t => t.Slug)"/>
+    <TemplateColumn Title="Show on Navbar">
+            @if (context.ShowOnNavbar)
+            {
+                <label class="text-success">
+                    <input type="checkbox" @onchange="@(()=> HandleShowOnNavbarChanged(context))" checked /> Yes
+                </label>
+            }
+            else
+            {
+                <label class="text-danger">
+                    <input type="checkbox" @onchange="@(()=> HandleShowOnNavbarChanged(context))" /> No
+                </label>
+            }
+    </TemplateColumn>
+        
+</QuickGrid>
+
+@code {
+    public Category? model;
+
+    // private List<Category>? categories;
+
+    private IQueryable<Category> categories = Enumerable.Empty<Category>().AsQueryable();
+
+    protected override async Task OnInitializedAsync() => await LoadCategoriesAsync();
+
+    private async Task LoadCategoriesAsync()
+    {
+        categories = (await CategoryRepository.GetCategoryAsync()).AsQueryable();
+       
+    }
+
+    private async Task HandleShowOnNavbarChanged(Category category)
+    {
+        category.ShowOnNavbar = !category.ShowOnNavbar;
+        await CategoryRepository.SaveCategoryAsync(category);
+        NavigationManager.Refresh();
+    }
+
+    private async Task SaveCategoryAsync()
+    {
+        if(model != null)
+        {
+            await CategoryRepository.SaveCategoryAsync(model!);
+            model = null;
+
+            await  LoadCategoriesAsync();
+        }
+    }
+}

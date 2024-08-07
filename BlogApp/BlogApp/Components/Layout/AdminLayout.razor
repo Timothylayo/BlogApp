@@ -1,0 +1,36 @@
+﻿@using BlogApp.Data
+@using Microsoft.AspNetCore.Identity
+@inherits LayoutComponentBase
+@using BlogApp.Components.Pages.Admin
+
+@layout MainLayout
+
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 bg-black py-3" style="min-height: calc(100vh - 200px)">
+            <AuthorizeView>
+                <Authorized>
+                    <h6 class="text-center font-weight-bold">Welcome  @context.User.GetUserName()</h6>
+                </Authorized>
+            </AuthorizeView>
+            <hr/>
+            <div class="list-group">
+                 <NavLink href="admin/manage/categories" class="list-group-item list-group-item-action">Manage Categories</NavLink>
+                <NavLink href="admin/manage-blog-posts" class="list-group-item list-group-item-action">Manage Blog Posts</NavLink>                
+                <NavLink href="admin/manage-subscribers" class="list-group-item list-group-item-action">Manage Subscribers</NavLink>   
+                <div class="list-group-item list-group-item-action">
+                    <LogoutFom ButtonClass="btn btn-sm btn-danger"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

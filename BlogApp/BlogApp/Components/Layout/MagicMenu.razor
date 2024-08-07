@@ -1,0 +1,81 @@
+﻿@using BlogApp.Client.Services
+@using BlogApp.Components.Pages
+@using BlogApp.Repositories
+@using BlogAppSharedProject.Models
+@inject ICategoryRepository CategoryRepository
+
+<nav id="MagicMenu" class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><strong>BlogApp</strong></a>
+        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse" id="navbarColor02" style="">
+            <ul class="navbar-nav mr-auto d-flex justify-content-center align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                @foreach (var c in _categories)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@c.Slug-posts" title="@c.Name Posts">@c.Name</a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Authors</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+           <ul class="navbar-nav ml-auto d-flex align-items-center">
+				
+				<AuthorizeView>
+					<Authorized>
+						<li class="nav-item">
+							<a class="nav-link" href="admin/dashboard"> @context.User.GetUserName() </a>
+						</li>
+						<li class="nav-item  highlight">
+							<LogoutForm ButtonClass="nav-link"/>
+						</li>
+					</Authorized>
+					<NotAuthorized>
+						<li class="nav-item highlight">
+							<a class="nav-link" href="Account/Register">
+								 Register
+							</a>
+						</li>
+						<li class="nav-item highlight">
+							<a class="nav-link" href="Account/Login">
+								 Login
+							</a>
+						</li>
+					</NotAuthorized>
+				</AuthorizeView>
+			</ul>
+            <ul class="navbar-nav ml-auto d-flex align-items-center">
+                <SearchComponent />
+            </ul>
+        </div>
+    </div>
+</nav>
+@code {
+    private Category[] _categories = [];
+
+    private const int MaxCategoryToShowOnNavBar = 5;
+    protected override async Task OnInitializedAsync()
+    {
+        var catgories = await CategoryRepository.GetCategoryAsync();
+
+        _categories = catgories.Where(c => c.ShowOnNavbar)
+                                .Take(5)
+                                .ToArray();
+
+        if (_categories.Length < MaxCategoryToShowOnNavBar)
+        {
+            _categories = [.._categories,..catgories.Where(c => !c.ShowOnNavbar)
+            .Take(MaxCategoryToShowOnNavBar - _categories.Length)];
+
+        }
+    }
+}

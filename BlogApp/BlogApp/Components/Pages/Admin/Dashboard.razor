@@ -1,0 +1,19 @@
+﻿@page "/admin/dashboard"
+
+<PageTitle>Dashboard</PageTitle>
+
+<AdminHeader Title="Dashboard"/>
+
+<p>Dashboard Content</p>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="text-center">
+            <p class="p-5">
+                <h2>Hello, @context.User.GetUserName()</h2>
+                <br />
+                <h3>Welcome to the admin dashboard</h3>
+            </p>
+        </div>
+    </Authorized>
+</AuthorizeView>
