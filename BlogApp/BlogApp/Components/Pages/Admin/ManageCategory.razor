@@ -3,7 +3,6 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-@inject ICategoryRepository CategoryRepository
 
 <PageTitle>Manage Categories</PageTitle>
 
@@ -58,7 +57,9 @@
                 </label>
             }
     </TemplateColumn>
-        
+    <TemplateColumn>
+        <button type="button" class="btn btn-sm btn-primary" @onclick="() => HandleEditCategory(context)">Edit</button>
+    </TemplateColumn>
 </QuickGrid>
 
 @code {
@@ -73,7 +74,7 @@
     private async Task LoadCategoriesAsync()
     {
         categories = (await CategoryRepository.GetCategoryAsync()).AsQueryable();
-       
+
     }
 
     private async Task HandleShowOnNavbarChanged(Category category)
@@ -81,6 +82,11 @@
         category.ShowOnNavbar = !category.ShowOnNavbar;
         await CategoryRepository.SaveCategoryAsync(category);
         NavigationManager.Refresh();
+    }
+
+    private void HandleEditCategory(Category category)
+    {
+        model = category.Clone();
     }
 
     private async Task SaveCategoryAsync()

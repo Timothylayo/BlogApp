@@ -1,14 +1,16 @@
 ﻿@page "/Account/RegisterConfirmation"
 
 @using System.Text
+@using BlogApp.Repositories
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using BlogApp.Data
 
 @inject UserManager<ApplicationUser> UserManager
-@inject IEmailSender<ApplicationUser> EmailSender
+@inject IEmailSender<ApplicationUser> emailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject HttpClient httpClient
 
 <PageTitle>Register confirmation</PageTitle>
 
@@ -18,14 +20,14 @@
 
 @if (emailConfirmationLink is not null)
 {
+    <p>Please check your email to confirm your account.</p>
+}
+else
+{
     <p>
         This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
         Normally this would be emailed: <a href="@emailConfirmationLink">Click here to confirm your account</a>
     </p>
-}
-else
-{
-    <p>Please check your email to confirm your account.</p>
 }
 
 @code {
@@ -54,7 +56,7 @@ else
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             statusMessage = "Error finding user for unspecified email";
         }
-        else if (EmailSender is IdentityNoOpEmailSender)
+        else
         {
             // Once you add a real email sender, you should remove this code that lets you confirm the account
             var userId = await UserManager.GetUserIdAsync(user);
@@ -63,6 +65,15 @@ else
             emailConfirmationLink = NavigationManager.GetUriWithQueryParameters(
                 NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
                 new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+            EmailSender emailSend = new();
+            emailSend.SendEmailAsync(Email, emailConfirmationLink);
+            await SendEmailAsync(Email, emailConfirmationLink);
         }
+    }
+
+    public async Task SendEmailAsync(string email, string confirmationLink)
+    {
+        await httpClient.GetAsync("api/emailsender");
     }
 }

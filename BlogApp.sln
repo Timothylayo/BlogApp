@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogApp", "BlogApp\BlogApp\BlogApp.csproj", "{59D430CD-167A-47F1-B717-A6C8157C67F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogApp", "BlogApp\BlogApp\BlogApp.csproj", "{59D430CD-167A-47F1-B717-A6C8157C67F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogApp.Client", "BlogApp\BlogApp.Client\BlogApp.Client.csproj", "{DF793EF6-E3D0-466B-905D-D64667344183}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogApp.Client", "BlogApp\BlogApp.Client\BlogApp.Client.csproj", "{DF793EF6-E3D0-466B-905D-D64667344183}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAppSharedProject", "BlogAppSharedProject\BlogAppSharedProject.csproj", "{E29AE4B1-F606-46E6-8328-0966847B1E38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAppSharedProject", "BlogAppSharedProject\BlogAppSharedProject.csproj", "{E29AE4B1-F606-46E6-8328-0966847B1E38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

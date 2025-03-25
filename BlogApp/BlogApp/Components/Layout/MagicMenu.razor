@@ -40,7 +40,7 @@
 						</li>
 					</Authorized>
 					<NotAuthorized>
-						<li class="nav-item highlight">
+						<li class="nav-item highlight ">
 							<a class="nav-link" href="Account/Register">
 								 Register
 							</a>
@@ -53,7 +53,7 @@
 					</NotAuthorized>
 				</AuthorizeView>
 			</ul>
-            <ul class="navbar-nav ml-auto d-flex align-items-center">
+            <ul class="navbar-nav ml-auto d-flex align-items-end">
                 <SearchComponent />
             </ul>
         </div>
@@ -62,13 +62,13 @@
 @code {
     private Category[] _categories = [];
 
-    private const int MaxCategoryToShowOnNavBar = 5;
+    private const int MaxCategoryToShowOnNavBar = 3;
     protected override async Task OnInitializedAsync()
     {
         var catgories = await CategoryRepository.GetCategoryAsync();
 
         _categories = catgories.Where(c => c.ShowOnNavbar)
-                                .Take(5)
+                                .Take(3)
                                 .ToArray();
 
         if (_categories.Length < MaxCategoryToShowOnNavBar)

@@ -7,7 +7,7 @@ namespace BlogApp.Client.Services
         Action? CategoryAction { get; set; }
         
 
-        Task GetAllCategories();
+        Task<Category[]> GetAllCategories();
 
         Task GetCategoriesBySlug(string slug);
 

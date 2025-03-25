@@ -18,7 +18,7 @@ namespace BlogApp.Data.Entities
 
         [Required, MaxLength(500, ErrorMessage = "The Max length is exceeded")]
         public string introduction { get; set; }
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         [Range(1, int.MaxValue, ErrorMessage = "Please select a a valid category")]
         public short CategoryId { get; set; }

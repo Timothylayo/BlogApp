@@ -1,0 +1,271 @@
+﻿@page "/admin/manage/blog-posts/new"
+@page "/admin/manage/blog-posts/edit/{id:int?}"
+
+@using BlogApp.Data.Entities
+@using BlogAppSharedProject.Models
+@using Markdig
+
+@inject IWebHostEnvironment webHostEnv
+@rendermode InteractiveServer
+
+@inject AuthenticationStateProvider authStateProv
+
+<PageTitle>PageTitle</PageTitle>
+
+<HeadContent>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.bubble.css" rel="stylesheet">
+</HeadContent>
+
+<Microsoft.AspNetCore.Components.Sections.SectionContent SectionName="property">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+</Microsoft.AspNetCore.Components.Sections.SectionContent>
+
+<AdminHeader Title="@(PageTitle)">
+
+</AdminHeader>
+
+<EditForm Model="model" OnValidSubmit="SaveBlogPostAsync">
+    <DataAnnotationsValidator/>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <InputText @bind-Value="model.Title" class="form-control form-control-sm" placeholder="Blog Post Title" />
+                <ValidationMessage For="() => model.Title" class="text-danger"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <InputSelect @bind-Value="model.CategoryId" class="form-control form-control-sm" >
+                    <option value="0">Select Category</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => model.CategoryId" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Introduction</label>
+                <InputText @bind-Value="model.introduction" class="form-control form-control-sm" placeholder="Blog Post Introduction" />
+                <ValidationMessage For="() => model.introduction" class="text-danger" />
+            </div>
+            @if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                <div class="mb-3">
+                    <img src="@imageUrl" style="height: 200px" />
+                </div>
+            }
+            <div class="mb-3">
+                <label class="form-label d-block">Upload Image</label>
+                <InputFile OnChange="LoadFilesAsync" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Content: </label>
+                <BlogTextArea id="content" @bind-Value="model.Content" class="form-control" />
+                <ValidationMessage For="()=> model.Content" />
+            </div>
+            <div class="mb-3">
+                <label for="contentpreview">Content Preview</label>
+                <div id="contentPreview" style="height: 100%;" class="form-control">@((MarkupString)Markdown.ToHtml(model.Content))</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label ml-3">
+                    <InputCheckbox @bind-Value="model.IsFeatured" class="form-check-input"/>
+                    Featured?
+                </label>
+            </div>
+           
+            <div class="mb-3">
+                <label class="form-label ml-3">
+                    <InputCheckbox @bind-Value="model.IsPublished" class="form-check-input"/>
+                    Published?
+                </label>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="mb-3">
+                    <p class="text-danger">@errorMessage</p>
+                </div>
+            }
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success">Save </button>
+            </div>
+
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string? contnt;
+
+    // // string? value;
+
+    private string PageTitle => Id.HasValue && Id > 0 ? "Update Blog Post" : "Create a New Blog Post";
+
+    private BlogPost model = new();
+
+    private Category[] categories = [];
+
+    public string? errorMessage;
+
+    private string? imageUrl;
+    private string? imageUrlToDelete;
+
+    string text = "Hi";
+
+
+
+    List<string> errors = new();
+    private int maxAllowedFiles = 3;
+    private long maxFileSize = 1024 * 1024 * 5;
+    private IBrowserFile? UploadedFile;
+
+    public string? relativePath;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        categories = await CategoryRepository.GetCategoryAsync();
+
+        if (Id.HasValue && Id > 0)
+        {
+            var blogPost = await BlogPostAdminRepository.GetBlogPostByIdAsync(Id.Value);
+            if (blogPost is null)
+            {
+                NavigationManager.NavigateTo("/admin/manage/blog-posts", replace: true);
+                return;
+            }
+            //Load the blog post and the image
+            model = blogPost;
+            imageUrl = blogPost.Image;
+        }
+    }
+
+    // protected async override Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (!firstRender) return;
+    //     if (!string.IsNullOrEmpty(QuillHTMLContent))
+    //     {
+    //         await QuillHtml!.LoadHTMLContent(QuillHTMLContent);
+    //         StateHasChanged();
+    //     }
+
+    // }
+
+    private async Task PreviewImageAsync(IBrowserFile file)
+    {
+        // .png ->
+        var extension = Path.GetExtension(file.Name)[1..]; //.png -> png
+        using var stream = file.OpenReadStream();
+        using MemoryStream memoryStream = new();
+        await stream.CopyToAsync(memoryStream);
+
+
+        //data:image/type;base64,jfjfjfjfjfjfjfjkldd
+        imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+    }
+
+
+    public async void LoadFilesAsync(InputFileChangeEventArgs e)
+    {
+        await PreviewImageAsync(e.File);
+
+        UploadedFile = e.File;
+
+    }
+
+    private void DeleteExistingImage(string imageUrl)
+    {
+        var imagePath = imageUrl.Replace("/", "\\");
+        var fullPath = Path.Combine(webHostEnv.WebRootPath, imagePath);
+        try
+        {
+            File.Delete(fullPath);
+        }
+        catch { }
+    }
+
+
+    public async Task<string> CaptureFile(IBrowserFile browserFile)
+    {
+        var randomFileName = Path.GetRandomFileName();
+        var extension = Path.GetExtension(browserFile.Name);
+
+        //it will give us this : ...../wwroot/images/posts
+        var folder = Path.Combine(webHostEnv.WebRootPath, "images", "posts");
+        Directory.CreateDirectory(folder);
+
+        var fileNamePath = Path.Combine("images", "posts", randomFileName + extension);
+
+        var fullPath = Path.Combine(webHostEnv.WebRootPath, fileNamePath);
+
+        await using FileStream fileStream = new FileStream(fullPath, FileMode.Create);
+
+        try
+        {
+            await browserFile.OpenReadStream().CopyToAsync(fileStream);
+
+            return fileNamePath.Replace("\\", "/");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            fileStream.Close();
+
+            //throw
+            return null!;
+        }
+    }
+
+    private async Task SaveBlogPostAsync()
+    {
+        try
+        {
+            if (UploadedFile is not null)
+            {
+                var uploadedFileUrl = await CaptureFile(UploadedFile);
+                if (uploadedFileUrl is null)
+                    return;
+
+                if (model.Id > 0 && !string.IsNullOrWhiteSpace(model.Image))
+                {
+                    //Edit mode
+                    imageUrlToDelete = model.Image;
+
+                }
+
+                model.Image = uploadedFileUrl;
+
+
+            }
+
+            var authState = await authStateProv.GetAuthenticationStateAsync();
+            var userId = authState.User.GetUserId();
+
+            await BlogPostAdminRepository.SaveBlogPostAsync(model, userId);
+            UploadedFile = null;
+
+            if (imageUrlToDelete != null)
+            {
+                //We change the image for this existing blog post
+                //Lets remove the existing image from physical location
+                DeleteExistingImage(imageUrlToDelete);
+            }
+
+            NavigationManager.NavigateTo("/admin/manage/blog-posts");
+            
+            return;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            
+        }
+    }
+}

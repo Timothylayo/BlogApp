@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <ProjectReference Include="..\..\BlogAppSharedProject\BlogAppSharedProject.csproj" />
     <ProjectReference Include="..\BlogApp.Client\BlogApp.Client.csproj" />
+    <PackageReference Include="Blazored.TextEditor" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.7" />

@@ -11,7 +11,7 @@ namespace BlogApp.Repositories
         public const string Email = "timothylayo27@gmail.com";
         public const string Role = "Admin";
         public const string Password = "DGc_Z8f7$J9zV9@";
-        
+
     }
     public class SeedService(ApplicationDbContext applicationDb, IUserStore<ApplicationUser> userStore,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : ISeedService
@@ -34,7 +34,7 @@ namespace BlogApp.Repositories
                     var errorsString = result.Errors.Select(e => e.Description);
                     throw new Exception($"Error in creating Admin Role {Environment.NewLine} {string.Join(Environment.NewLine, errorsString)}");
                 }
-                
+
             }
 
             //seed Admin User
@@ -56,7 +56,7 @@ namespace BlogApp.Repositories
                 var result = await _userManager.CreateAsync(adminUser, AdminAccount.Password);
                 var getUserRoles = await _userManager.GetRolesAsync(adminUser);
                 var userRole = await _userManager.AddToRoleAsync(adminUser!, AdminAccount.Role);
-               
+
 
                 if (!result.Succeeded)
                 {

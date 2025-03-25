@@ -52,9 +52,6 @@
                     <p>
                         <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
                     </p>
-                    <p>
-                        <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
                 </div>
             </EditForm>
         </section>
@@ -71,7 +68,7 @@
     private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    private string? ReturnUrl { get; set; } = "/admin-dashboard";
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,8 +92,8 @@
         }
 
 
-        var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, lockoutOnFailure: false);
-        if (result.Succeeded)
+        var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false);
+        if (!result.Succeeded)
         {
             errorMessage = "Error: Invalid login attempt.";
             return;

@@ -1,78 +1,123 @@
-﻿<div class="col-md-8 main-loop">
+﻿@page "/posts/{page:int}"
 
+<div class="col-md-8 main-loop">
     <h4 class="font-weight-bold spanborder"><span>All Stories</span></h4>
-
-
-    {% for post in paginator.posts %}
-
-    {% include main-loop-card.html %}
-
-    {% endfor %}
+    @foreach(var post in blogPosts)
+    {
+        <div class="mb-5 d-flex justify-content-between main-loop-card">
+            <div class="pr-3">
+                <h2 class="mb-1 h4 font-weight-bold">
+                    <a class="text-dark" href="posts/@post.Slug">@post.Title</a>
+                </h2>
+                <p class="excerpt">
+                    @MarkDownConversion.ConvertMarkdownToHtml(post.Excerpt)
+                </p>
+                <small class="d-block text-muted">
+                    In <span class="catlist">
+                        <a class="text-capitalize text-muted smoothscroll" href="posts/@post.Slug">@post.CategoryName</a><span class="sep"></span>
+                    </span>
+                </small>
+                <small class="text-muted">
+                    @post.PublishedAt
+                </small>
+            </div>
+            @if(post.Image != null)
+            {
+                <div class="col-md-3 pr-0 text-right">
+                    <a href="@post.Slug">
+                        <img class="w-100" src="@post.Image" alt="@post.Title">
+                    </a>
+                </div>
+            }
+        </div>
+    }
 
     <div class="mt-5">
         <!-- Pagination links -->
-        {% if paginator.total_pages > 1 %}
-        <ul class="pagination">
-            {% if paginator.previous_page %}
-            <li class="page-item"><a class="page-link" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a></li>
-            {% else %}
-            <li class="page-item disabled"><span class="prev page-link">&laquo;</span></li>
-            {% endif %}
+        @if (Page > 1)
+        {
+            <ul class="pagination">
+                <!-- Previous Page Links-->
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href=$"/posts/{Page - 1}">
+                            &laquo; Prev</a>
+                        </li>
+                }
+                else
+                {
+                    <li class="page-item disabled"><span class="prev page-link">&laquo;</span></li>
+                }
 
-            {% for page in (1..paginator.total_pages) %}
-            {% if page == paginator.page %}
-            <li class="page-item disabled"><span class="webjeda page-link">{{ page }}</span></li>
-            {% elsif page == 1 %}
-            <li class="page-item"><a class="page-link" href="{{site.baseurl}}/">{{ page }}</a></li>
-            {% else %}
-            <li class="page-item"><a class="page-link" href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a></li>
-            {% endif %}
-            {% endfor %}
+                <!-- Page Links-->
+                @for (var pagelink = 1; pagelink <= totalPages; pagelink++)
+                {
+                    @if ( pagelink == Page)
+                    {
+                        <li class="page-item disabled"><span class="webjeda page-link">@pagelink</span></li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href=$"/posts/{@pagelink}">
+                                @pagelink</a>
+                        </li>
+                    }
+                }
 
-            {% if paginator.next_page %}
-            <li class="page-item"><a class="page-link" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a></li>
-            {% else %}
-            <li class="page-item disabled"><span class="next page-link">&raquo;</span></li>
-            {% endif %}
-        </ul>
-        {% endif %}
-    </div>
-
-    <h4 class="font-weight-bold spanborder"><span>All Stories</span></h4>
-
-
-    {% for post in paginator.posts %}
-
-    {% include main-loop-card.html %}
-
-    {% endfor %}
-
-    <div class="mt-5">
-        <!-- Pagination links -->
-        {% if paginator.total_pages > 1 %}
-        <ul class="pagination">
-            {% if paginator.previous_page %}
-            <li class="page-item"><a class="page-link" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a></li>
-            {% else %}
-            <li class="page-item disabled"><span class="prev page-link">&laquo;</span></li>
-            {% endif %}
-
-            {% for page in (1..paginator.total_pages) %}
-            {% if page == paginator.page %}
-            <li class="page-item disabled"><span class="webjeda page-link">{{ page }}</span></li>
-            {% elsif page == 1 %}
-            <li class="page-item"><a class="page-link" href="{{site.baseurl}}/">{{ page }}</a></li>
-            {% else %}
-            <li class="page-item"><a class="page-link" href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a></li>
-            {% endif %}
-            {% endfor %}
-
-            {% if paginator.next_page %}
-            <li class="page-item"><a class="page-link" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a></li>
-            {% else %}
-            <li class="page-item disabled"><span class="next page-link">&raquo;</span></li>
-            {% endif %}
-        </ul>
-        {% endif %}
+                <!-- Next Page Link-->
+                @if (Page < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href=$"/posts/{@Page + 1}">
+                            Next &raquo;
+                            </a></li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="next page-link">&raquo;</span>
+                    </li>
+                }
+            </ul>
+        }
     </div>
 </div>
+
+@code {
+    [Parameter]
+    public int Page { get; set; }
+
+    private List<BlogPostDto> blogPosts = new();
+    private int totalRecords;
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogPosts();
+    }
+
+    private async Task LoadBlogPosts()
+    {
+        var response = await blogPostService.GetBlogPost(currentPage, pageSize);
+
+        if (response != null)
+        {
+            blogPosts = response.Data.ToList();
+            totalRecords = response.TotalRecords;
+            totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+        }
+    }
+
+    private async Task GoToPage(int pageNumber)
+    {
+        currentPage = pageNumber;
+        await LoadBlogPosts();
+    }
+
+
+}

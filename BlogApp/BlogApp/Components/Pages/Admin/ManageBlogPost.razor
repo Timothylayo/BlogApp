@@ -1,15 +1,20 @@
-﻿@page "/admin/manage-blog-posts"
+﻿@page "/admin/manage/blog-posts"
 @using BlogApp.Data.Entities
+@using BlogAppSharedProject.Models
 
-
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>Manage BlogPost</PageTitle>
 
-<AdminHeader Title="Manage BlogPost"/>
+<AdminHeader Title="Manage BlogPost">
+    <ActionButtons>
+        <button href="admin/manage/blog-posts/new" class="btn btn-primary btn-sm" data-enhance-nav="false">+ Add New BlogPost</button>
+    </ActionButtons>
+</AdminHeader>
 
 <QuickGrid ItemsProvider="_blogPostsProvider" Pagination="_paginationState" class="table table-bordered table-striped table-hover">
-    <PropertyColumn Property="@(t => t.Id)"/>
-        <TemplateColumn>
+    <PropertyColumn Property="@(t => t.Id)" />
+    <TemplateColumn>
         <div class="py-2" style="display: grid;grid-template-columns: 60px auto; grid-column-gap: 5px">
             <img src="@context.Image" style="height: 60px; width: 60px; object-fit: cover" />
             <div>
@@ -24,59 +29,73 @@
                 }
             </div>
         </div>
-        </TemplateColumn>
-        <PropertyColumn Property="@(t => t.Category.Name)" Title="Category"/>
-        <TemplateColumn Title="Featured">
-            @if (context.IsFeatured)
-            {
-                <label class="text-success">
-                    <input type="checkbox" @onchange="@(()=> HandleFeaturedChanged(context))" checked /> Yes
-                </label>
-            }
-            else
-            {
-                <label class="text-danger">
-                    <input type="checkbox" @onchange="@(()=> HandleFeaturedChanged(context))" /> No
-                </label>
-            }
+    </TemplateColumn>
+    <PropertyColumn Property="@(t => t.Category.Name)" Title="Category" />
+    <TemplateColumn Title="Featured">
+        @if (context.IsFeatured)
+        {
+            <label class="text-success">
+                <input type="checkbox" @onchange="@(()=> HandleFeaturedChanged(context))" checked /> Yes
+            </label>
+        }
+        else
+        {
+            <label class="text-danger">
+                <input type="checkbox" @onchange="@(()=> HandleFeaturedChanged(context))" /> No
+            </label>
+        }
 
-        </TemplateColumn>
-        <TemplateColumn Title="Published">
-            @if (context.IsFeatured)
-            {
-                <label class="text-success">
-                    <input type="checkbox" @onchange="@(()=> HandlePublishedChanged(context))" checked /> Yes
-                </label>
-            }
-            else
-            {
-                <label class="text-danger">
+    </TemplateColumn>
+    <TemplateColumn Title="Published">
+        @if (context.IsFeatured)
+        {
+            <label class="text-success">
+                <input type="checkbox" @onchange="@(()=> HandlePublishedChanged(context))" checked /> Yes
+            </label>
+        }
+        else
+        {
+            <label class="text-danger">
                 <input type="checkbox" @onchange="@(()=> HandlePublishedChanged(context))" /> No
-                </label>
-            }
+            </label>
+        }
 
-        </TemplateColumn>
+    </TemplateColumn>
+    <TemplateColumn>
+        <a href="/admin/manage/blog-posts/edit/@context.Id" class="btn btn-sm btn-primary" data-enhance-nav="false">Edit</a>
+    </TemplateColumn>
 </QuickGrid>
 
-<Paginator State="_paginationState"/>
+<Paginator State="_paginationState" />
 
 @code {
+
     private const int PageSize = 5;
 
     private PaginationState _paginationState = new PaginationState { ItemsPerPage = PageSize };
     //This is used so that the quickgrid will invoke it when there is any operation on the grid
     private GridItemsProvider<BlogPost>? _blogPostsProvider;
 
-    public async Task HandlePublishedChanged(BlogPost post)
+    protected override void OnInitialized()
     {
-        post.IsFeatured = !post.IsFeatured;
-        await SaveChangesAsync(post);
-    } 
+        _blogPostsProvider = async request =>
+        {
+            StateHasChanged();
+            PagedResult<BlogPost> pagedBlogs = await BlogPostAdminRepository.GetBlogPostAsync(request.StartIndex, request.Count ?? PageSize);
+            return GridItemsProviderResult.From(pagedBlogs.Results, pagedBlogs.TotalCount);
+        };
+    }
 
-    public async Task HandleFeaturedChanged(BlogPost post)
+    public async Task HandlePublishedChanged(BlogPost post)
     {
         post.IsPublished = !post.IsPublished;
         await SaveChangesAsync(post);
+    }
+
+    public async Task HandleFeaturedChanged(BlogPost blog)
+    {
+        blog.IsFeatured = !blog.IsFeatured;
+        await SaveChangesAsync(blog);
     }
 
     private async Task SaveChangesAsync(BlogPost model)
