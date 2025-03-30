@@ -9,10 +9,9 @@
                 </h6>
                 <span class="d-block text-muted">
                     In <span class="catlist">
-                        @foreach (var category in Categories)
-                        {
-                        <a class="text-capitalize text-muted smoothscroll" href="/posts/@post.Slug">@post.CategoryName</a><span class="sep"></span>
-                        }
+                        
+                            <a class="text-capitalize text-muted smoothscroll" href="/posts/@post.Slug">@post.CategoryName</a><span class="sep"></span>
+                        
                     </span>
                 </span>
             </span>
@@ -21,13 +20,11 @@
 </ol>
 
 @code {
-    [Parameter, EditorRequired]
     public List<BlogPostDto> FeaturedPost { get; set; } = [];
 
-    public Category[] Categories = [];
 
     protected override async Task OnInitializedAsync()
     {
-        Categories = await categoryService.GetAllCategories();
+        FeaturedPost = await blogPostService.GetFeaturedBlogPostAsync(5);
     }
 }

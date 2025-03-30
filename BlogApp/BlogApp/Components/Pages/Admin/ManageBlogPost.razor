@@ -6,11 +6,18 @@
 
 <PageTitle>Manage BlogPost</PageTitle>
 
-<AdminHeader Title="Manage BlogPost">
+@* <AdminHeader Title="Manage BlogPost">
     <ActionButtons>
         <button href="admin/manage/blog-posts/new" class="btn btn-primary btn-sm" data-enhance-nav="false">+ Add New BlogPost</button>
     </ActionButtons>
-</AdminHeader>
+</AdminHeader> *@
+
+<div class="bg-gray p-3 d-flex justify-content-between">
+    <h5>Manage Blogpost</h5>
+    <div class="actions-btn d-flex align-items-center">
+        <a href="admin/manage/blog-posts/new" class="btn btn-primary btn-sm" data-enhance-nav="false">+ Add New BlogPost</a>
+    </div>
+</div>
 
 <QuickGrid ItemsProvider="_blogPostsProvider" Pagination="_paginationState" class="table table-bordered table-striped table-hover">
     <PropertyColumn Property="@(t => t.Id)" />

@@ -42,8 +42,8 @@ namespace BlogApp.Repositories
             smtpClient.UseDefaultCredentials = false;
             smtpClient.Credentials = new NetworkCredential("7d26d05cc8d3b1", "6c40aca1865fe6");
             smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-            
-            
+
+
             await smtpClient.SendMailAsync(mailMessage);
         }
     }

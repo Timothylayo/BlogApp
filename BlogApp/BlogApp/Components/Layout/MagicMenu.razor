@@ -60,7 +60,7 @@
     </div>
 </nav>
 @code {
-    private Category[] _categories = [];
+    private List<Category> _categories = [];
 
     private const int MaxCategoryToShowOnNavBar = 3;
     protected override async Task OnInitializedAsync()
@@ -69,12 +69,12 @@
 
         _categories = catgories.Where(c => c.ShowOnNavbar)
                                 .Take(3)
-                                .ToArray();
+                                .ToList();
 
-        if (_categories.Length < MaxCategoryToShowOnNavBar)
+        if (_categories.Count < MaxCategoryToShowOnNavBar)
         {
             _categories = [.._categories,..catgories.Where(c => !c.ShowOnNavbar)
-            .Take(MaxCategoryToShowOnNavBar - _categories.Length)];
+            .Take(MaxCategoryToShowOnNavBar - _categories.Count)];
 
         }
     }

@@ -1,0 +1,24 @@
+﻿@foreach (var b in Posts)
+{
+	<div class="mb-3 d-flex justify-content-between">
+		<div class="pr-3">
+			<h2 class="mb-1 h4 font-weight-bold">
+				<a class="text-dark" href="posts/@b.Slug">@b.Title</a>
+			</h2>
+			<p>
+				@b.introduction
+			</p>
+			<div class="card-text text-muted small">
+				@b.UserName in <a href="@b.CategorySlug-posts" title="@b.CategoryName Posts">@b.CategoryName</a>
+			</div>
+			<small class="text-muted">@b.PublishedAt</small>
+		</div>
+		<img height="120" src="@b.Image">
+	</div>
+}
+
+
+@code {
+	[Parameter, EditorRequired]
+	public List<BlogPostDto> Posts { get; set; } = [];
+}

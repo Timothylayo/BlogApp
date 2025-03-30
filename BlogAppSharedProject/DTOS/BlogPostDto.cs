@@ -18,7 +18,9 @@ namespace BlogAppSharedProject.DTOS
         public string Content { get; set; } = string.Empty;
         public string Excerpt { get; set; } = string.Empty;
         public string CategoryName { get; set; }
+        public string CategorySlug { get; set; }
         public string UserId { get; set; }
+        public string UserName { get; set; }
         public int ViewCount { get; set; }
         public bool IsFeatured { get; set; }
         public DateTime? PublishedAt { get; set; }

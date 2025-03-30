@@ -1,5 +1,4 @@
-﻿using BlogApp.Data;
-using BlogAppSharedProject.Models;
+﻿using BlogAppSharedProject.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace BlogApp.Data.Entities

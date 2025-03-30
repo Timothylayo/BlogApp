@@ -13,7 +13,7 @@ namespace BlogApp
 
 
         public static string ToSlug(this string text)
-        { 
+        {
             //Blazor (WASM) -> blazor--wasm-   
             text = SlugRegex().Replace(text.ToLowerInvariant(), "-");
 

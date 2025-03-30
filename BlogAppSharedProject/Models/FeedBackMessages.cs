@@ -12,9 +12,9 @@ namespace BlogAppSharedProject.Models
         [Required, EmailAddress]
         public string? EmailAddress { get; set; }
 
-        [Required,MaxLength(500)]
+        [Required, MaxLength(500)]
         public string? Message { get; set; }
 
-        
+
     }
 }

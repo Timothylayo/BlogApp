@@ -1,0 +1,71 @@
+﻿@page "/posts/{Slug}"
+
+@inject NavigationManager NavigationManager
+
+
+<div class="container">
+	<div class="jumbotron jumbotron-fluid mb-3 pl-0 pt-0 pb-0 bg-white position-relative">
+		<div class="h-100 tofront">
+			<div class="row justify-content-between">
+				<div class="col-md-6 pt-6 pb-6 pr-6 align-self-center">
+					<p class="text-uppercase font-weight-bold">
+						<a class="text-danger" href="@blogPost.Slug">@blogPost.CategoryName</a>
+					</p>
+					<h1 class="display-4 secondfont mb-3 font-weight-bold">@blogPost.Title</h1>
+					<p class="mb-3">
+						@blogPost.introduction
+					</p>
+					<div class="d-flex align-items-center">
+						<img class="rounded-circle" src="img/avatar2.jpg" width="70">
+						<small class="ml-2">
+							@blogPost.UserName <span class="text-muted d-block">@blogPost.PublishedAt</span>
+						</small>
+					</div>
+				</div>
+				<div class="col-md-6 pr-0">
+					<img src="@blogPost.Image">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+<div class="container-lg pt-4 pb-4">
+	<div class="row justify-content-center">
+		<div class="col-md-12">
+			<!-- Article -->
+			<article class="article-post">
+				@MarkDownConversion.ConvertMarkdownToHtml(blogPost.Content)
+			</article>
+			<SubscribeBox />
+		</div>
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public string Slug { get; set; }
+
+	private BlogPostDto blogPost = new();
+
+	protected async override Task OnInitializedAsync()
+	{
+		var result = await blogPostService.GetBlogPostBySlugAsync(Slug);
+
+		if (result == null)
+		{
+			//Thid will navigate user to the homepage if the url is not correct
+			NavigationManager.NavigateTo("/", replace: true);
+			return;
+		}
+
+		blogPost = result;
+	}
+
+	
+}

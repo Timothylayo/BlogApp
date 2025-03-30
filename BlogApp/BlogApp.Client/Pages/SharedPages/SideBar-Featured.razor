@@ -1,0 +1,28 @@
+﻿<div class="sticky-top sticky-top-offset">
+    <h4 class="font-weight-bold spanborder"><span>Featured</span></h4>
+    <ol class="list-featured">
+        @* {% for post in site.tags.featured %} *@
+        @foreach(var post in FeaturedPost)
+        {
+            <li class="mb-4">
+                <span>
+                    <h6 class="font-weight-bold">
+                        <a href="/posts/@post.Slug" class="text-dark">@post.Title</a>
+                    </h6>
+                    <span class="d-block text-muted">
+                        In <span class="catlist">
+                            <a class="text-capitalize text-muted smoothscroll" href="@post.CategorySlug-posts">@post.CategoryName</a>
+                        </span>
+                    </span>
+                </span>
+            </li>
+        }
+
+        @* {% endfor %} *@
+    </ol>
+</div>
+
+@code {
+    [Parameter]
+    public List<BlogPostDto> FeaturedPost { get; set; }
+}

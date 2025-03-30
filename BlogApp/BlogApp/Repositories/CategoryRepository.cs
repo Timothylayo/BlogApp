@@ -1,76 +1,63 @@
-﻿using BlogApp.Client.Services;
-using BlogApp.Data;
+﻿using BlogApp.Data;
 using BlogAppSharedProject.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApp.Repositories
 {
-    public class CategoryRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : ICategoryRepository
+    public class CategoryRepository(ApplicationDbContext dbContext) : ICategoryRepository
     {
-        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory = contextFactory;
+        private readonly ApplicationDbContext dbContext = dbContext;
 
-        private async Task<TResult> ExecuteOnContext<TResult>(Func<ApplicationDbContext, Task<TResult>> query)
+        public async Task<List<Category>> GetCategoryAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
-            return await query.Invoke(context);
-        }
-        public async Task<Category[]> GetCategoryAsync()
-        {
-            return await ExecuteOnContext(async context =>
-            {
-                var categories = await context.Categories
+            var categories = await dbContext.Categories
                                         .AsNoTracking()
-                                        .ToArrayAsync();
-                return categories;
-            });
+                                        .ToListAsync();
+
+            return categories;
         }
         public async Task<Category> SaveCategoryAsync(Category category)
         {
-            return await ExecuteOnContext(async context =>
+            if (category.Id == 0)
             {
-                if (category.Id == 0)
+                // it is a new category
+                if (await dbContext.Categories
+                                    .AsNoTracking()
+                                    .AnyAsync(c => c.Name == category.Name))
                 {
-                    // it is a new category
-                    if (await context.Categories
-                                        .AsNoTracking()
-                                        .AnyAsync(c => c.Name == category.Name))
-                    {
-                        throw new InvalidOperationException($"Category with the nam {category.Name} exists");
-                    }
-                    category.Slug = category.Name.ToSlug();
-                    await context.Categories.AddAsync(category);
-
+                    throw new InvalidOperationException($"Category with the nam {category.Name} exists");
                 }
-                else
+                category.Slug = category.Name.ToSlug();
+                await dbContext.Categories.AddAsync(category);
+
+            }
+            else
+            {
+                //It is an existing category
+                if (await dbContext.Categories
+                                    .AsNoTracking()
+                                    .AnyAsync(c => c.Name == category.Name && c.Id != category.Id))
                 {
-                    //It is an existing category
-                    if (await context.Categories
-                                       .AsNoTracking()
-                                       .AnyAsync(c => c.Name == category.Name && c.Id != category.Id))
-                    {
-                        throw new InvalidOperationException($"Category with the name {category.Name} exists");
-                    }
-                    var dbCategory = await context.Categories
-                                    .FindAsync(category.Id);
-
-
-                    dbCategory!.Name = category.Name;
-                    dbCategory.ShowOnNavbar = category.ShowOnNavbar;
-
-                    category.Slug = dbCategory!.Slug;
-
+                    throw new InvalidOperationException($"Category with the name {category.Name} exists");
                 }
-                await context.SaveChangesAsync();
+                var dbCategory = await dbContext.Categories
+                                .FindAsync(category.Id);
 
-                return category;
-            });
+
+                dbCategory!.Name = category.Name;
+                dbCategory.ShowOnNavbar = category.ShowOnNavbar;
+
+                category.Slug = dbCategory!.Slug;
+
+            }
+            await dbContext.SaveChangesAsync();
+
+            return category;
         }
 
         public async Task<Category?> GetCategoryBySlugAsync(string slug) =>
-            await ExecuteOnContext(async context =>
-                await context.Categories
+                await dbContext.Categories
                                 .AsNoTracking()
-                                .FirstOrDefaultAsync(c => c.Slug == slug)
-            );
+                                .FirstOrDefaultAsync(c => c.Slug == slug);
     }
 }

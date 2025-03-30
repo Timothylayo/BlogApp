@@ -1,0 +1,79 @@
+﻿@page "/{categorySlug}-posts"
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @* {% for category in site.categories %} *@
+            @foreach ( var blog in BlogPosts)
+            {
+                <h4 class="font-weight-bold spanborder text-capitalize" id="@blog.CategoryName"><span>@blog.CategoryName</span></h4>
+            }
+            
+
+            @* {% assign pages_list = category[1] %}
+            {% for post in pages_list %} *@
+            <Main_loop_Card blogPost="BlogPosts" />
+            @* {% if post.title != null %}
+            {% if group == null or group == post.group %}
+
+            {% include main - loop - card.html %}
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+            {% assign pages_list = nil %}
+            {% assign group = nil %}
+
+            {% endfor %} *@
+        </div>
+        <div class="col-md-4">
+            <SideBar_Featured FeaturedPost="FeaturedPost" />
+        </div>
+    </div>
+</div>
+
+<div class="container pt-4 pb-4">
+    <SubscribeBox />
+</div>
+
+@code {
+    [Parameter]
+    public string categorySlug { get; set; }
+
+
+    public List<BlogPostDto> BlogPosts = [];
+    public List<BlogPostDto> FeaturedPost = [];
+
+    private Category category ;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrWhiteSpace(categorySlug))
+        {
+            Console.WriteLine("categorySlug is null or empty.");
+        }
+        BlogPosts = await blogPostService.GetBlogPostByCategoryAsync(categorySlug);
+        // var _category = await categoryService.GetCategoriesBySlug(categorySlug);
+        if (BlogPosts is null)
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        //category = _category;
+        FeaturedPost = await blogPostService.GetFeaturedBlogPostAsync(5);
+        //BlogPosts = await blogPostService.GetBlogPostByCategoryAsync(category.Id);
+    }
+
+    // protected async override Task OnInitializedAsync()
+    // {
+    //     var _category = await categoryService.GetCategoriesBySlug(categorySlug);
+    //     if (_category is null)
+    //     {
+    //         NavigationManager.NavigateTo("/", replace: true);
+    //         return;
+    //     }
+    //     category = _category;
+    //     FeaturedPost = await blogPostService.GetFeaturedBlogPostAsync(5);
+    //     BlogPosts = await blogPostService.GetBlogPostByCategoryAsync(category.Id);
+    // }
+}

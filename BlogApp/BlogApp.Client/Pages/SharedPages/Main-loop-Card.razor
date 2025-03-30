@@ -1,0 +1,36 @@
+﻿
+@foreach (var post in blogPost)
+{
+    <div class="mb-5 d-flex justify-content-between main-loop-card">
+        <div class="pr-3">
+            <h2 class="mb-1 h4 font-weight-bold">
+                <a class="text-dark" href="posts/@post.Slug">@post.Title</a>
+            </h2>
+            <p class="excerpt">
+                @MarkDownConversion.ConvertMarkdownToHtml(post.Excerpt)
+            </p>
+            <small class="d-block text-muted">
+                In <span class="catlist">
+                    <a class="text-capitalize text-muted smoothscroll" href="posts/@post.Slug">@post.CategoryName</a><span class="sep"></span>
+                </span>
+            </small>
+            <small class="text-muted">
+                @post.PublishedAt
+            </small>
+        </div>
+        @if (post.Image != null)
+        {
+            <div class="col-md-3 pr-0 text-right">
+                <a href="@post.Slug">
+                    <img class="w-100" src="@post.Image" alt="@post.Title">
+                </a>
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public List<BlogPostDto> blogPost { get; set; }
+}

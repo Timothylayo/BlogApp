@@ -75,17 +75,57 @@ namespace BlogApp.Repositories
         }
 
 
-        public async Task<DetailPageModel> GetBlogPostBySlugAsync(string slug)
+        public async Task<List<BlogPostDto>> GetBlogPostByCategoryAsync(string categorySlug)
         {
-            List<BlogPostDto> relatedBlogPosts = [];
+            List<BlogPostDto> blogs = [];
+            var blogPosts = await context.BlogPosts
+                                          .AsNoTracking()
+                                          .Include(p => p.Category)
+                                          .Include(p => p.User)
+                                          .Where(b => b.Category.Slug == categorySlug && b.IsPublished)
+                                          .ToListAsync();
+
+            if (blogPosts is null)
+            {
+                return null;
+            }
+
+            foreach (var blogPost in blogPosts)
+            {
+                var post = new BlogPostDto
+                {
+                    Title = blogPost!.Title,
+                    CategoryName = blogPost.Category.Name,
+                    Content = blogPost.Content,
+                    Slug = blogPost.Slug,
+                    Image = blogPost.Image,
+                    introduction = blogPost.introduction,
+                    IsFeatured = blogPost.IsFeatured,
+                    PublishedAt = blogPost.PublishedAt,
+                    UserId = blogPost.UserId,
+                    ViewCount = blogPost.ViewCount,
+                };
+                blogs.Add(post);
+            }
+            return blogs;
+        }
+        public async Task<BlogPostDto> GetBlogPostBySlugAsync(string slug)
+        {
             var blogPost = await context.BlogPosts
                                           .AsNoTracking()
                                           .Include(p => p.Category)
                                           .Include(p => p.User)
                                           .FirstOrDefaultAsync(b => b.Slug == slug && b.IsPublished);
-            BlogPostDto blog = new()
+
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == blogPost!.UserId);
+
+            if (blogPost is null && user == null)
             {
-                Title = blogPost!.Title,
+                return null;
+            }
+            var blog = new BlogPostDto
+            {
+                Title = blogPost.Title,
                 CategoryName = blogPost.Category.Name,
                 Content = blogPost.Content,
                 Slug = blogPost.Slug,
@@ -94,40 +134,11 @@ namespace BlogApp.Repositories
                 IsFeatured = blogPost.IsFeatured,
                 PublishedAt = blogPost.PublishedAt,
                 UserId = blogPost.UserId,
-                ViewCount = blogPost.ViewCount
+                ViewCount = blogPost.ViewCount,
+                UserName = user!.Name!
 
             };
-
-            if (blogPost is null)
-                return DetailPageModel.Empty();
-
-            var relatedPost = await context.BlogPosts
-                                    .AsNoTracking()
-                                    .Include(p => p.Category)
-                                    .Include(p => p.User)
-                                    .Where(b => b.CategoryId == blogPost!.CategoryId && b.IsPublished)
-                                    .OrderBy(_ => Guid.NewGuid())
-                                    .Take(4)
-                                    .ToListAsync();
-            foreach (var post in relatedPost)
-            {
-                BlogPostDto postDto = new()
-                {
-                    Title = post.Title,
-                    CategoryName = post.Category.Name,
-                    Content = post.Content,
-                    Slug = post.Slug,
-                    Image = post.Image,
-                    introduction = post.introduction,
-                    IsFeatured = post.IsFeatured,
-                    PublishedAt = post.PublishedAt,
-                    UserId = post.UserId,
-                    ViewCount = post.ViewCount
-                };
-                relatedBlogPosts.Add(postDto);
-            }
-
-            return new DetailPageModel(blog!, relatedBlogPosts);
+            return blog;
         }
 
         public async Task<List<BlogPostDto>> GetFeaturedBlogPostAsync(int count)
@@ -181,9 +192,9 @@ namespace BlogApp.Repositories
                             .Include(p => p.User)
                             .Where(p => p.IsPublished);
 
-             await query.OrderByDescending(b => b.ViewCount)
-                        .Take(count)
-                        .ToListAsync();
+            await query.OrderByDescending(b => b.ViewCount)
+                       .Take(count)
+                       .ToListAsync();
 
             foreach (var post in query)
             {
@@ -207,7 +218,7 @@ namespace BlogApp.Repositories
 
         public async Task<List<BlogPostDto>> GetRecentBlogPostAsync(int count) =>
             await GetPostsAsync(0, count, 0);
-        
+
 
         private async Task<List<BlogPostDto>> GetPostsAsync(int skip, int take, int categoryId)
         {
@@ -226,7 +237,7 @@ namespace BlogApp.Repositories
                         .Skip(skip)
                         .Take(take)
                         .ToListAsync();
-            foreach(var post in query)
+            foreach (var post in query)
             {
                 BlogPostDto blogPost = new()
                 {
