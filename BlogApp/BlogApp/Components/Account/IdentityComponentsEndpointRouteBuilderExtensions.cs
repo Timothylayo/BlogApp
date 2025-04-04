@@ -1,6 +1,6 @@
 using BlogApp.Components.Account.Pages;
 using BlogApp.Components.Account.Pages.Manage;
-using BlogApp.Data;
+using BlogApp.Data.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

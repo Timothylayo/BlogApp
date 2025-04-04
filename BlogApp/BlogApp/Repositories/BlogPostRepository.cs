@@ -116,6 +116,8 @@ namespace BlogApp.Repositories
                                           .Include(p => p.Category)
                                           .Include(p => p.User)
                                           .FirstOrDefaultAsync(b => b.Slug == slug && b.IsPublished);
+            blogPost.ViewCount++;
+            await context.SaveChangesAsync();
 
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == blogPost!.UserId);
 
@@ -125,7 +127,7 @@ namespace BlogApp.Repositories
             }
             var blog = new BlogPostDto
             {
-                Title = blogPost.Title,
+                Title = blogPost!.Title,
                 CategoryName = blogPost.Category.Name,
                 Content = blogPost.Content,
                 Slug = blogPost.Slug,
@@ -136,7 +138,6 @@ namespace BlogApp.Repositories
                 UserId = blogPost.UserId,
                 ViewCount = blogPost.ViewCount,
                 UserName = user!.Name!
-
             };
             return blog;
         }
@@ -255,10 +256,7 @@ namespace BlogApp.Repositories
 
                 blogPosts.Add(blogPost);
             }
-
-
             return blogPosts;
-
         }
 
         private static string Truncate(string content, int maxLength)

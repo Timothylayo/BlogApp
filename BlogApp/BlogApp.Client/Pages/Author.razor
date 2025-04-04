@@ -1,4 +1,4 @@
-﻿@page "/author"
+﻿@page "/author-{AuthorsName}"
 
 <div class="container">
     <div class="row justify-content-center">
@@ -23,5 +23,6 @@
 </div>
 
 @code {
-
+    [Parameter]
+    public string AuthorsName { get; set; }
 }

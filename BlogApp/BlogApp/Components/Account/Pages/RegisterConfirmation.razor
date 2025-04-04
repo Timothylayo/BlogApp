@@ -1,10 +1,11 @@
 ﻿@page "/Account/RegisterConfirmation"
 
 @using System.Text
+@using BlogApp.Data
+@using BlogApp.Data.Entities
 @using BlogApp.Repositories
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using BlogApp.Data
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IEmailSender<ApplicationUser> emailSender

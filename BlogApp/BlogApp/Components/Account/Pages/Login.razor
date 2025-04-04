@@ -1,11 +1,12 @@
 ﻿@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using BlogApp.Data
+@using BlogApp.Data.Entities
 @using BlogAppSharedProject
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using BlogApp.Data
-@using System.Security.Claims
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger

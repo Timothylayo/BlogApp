@@ -2,6 +2,7 @@ using BlogApp.Client.Services;
 using BlogApp.Components;
 using BlogApp.Components.Account;
 using BlogApp.Data;
+using BlogApp.Data.Entities;
 using BlogApp.Repositories;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;

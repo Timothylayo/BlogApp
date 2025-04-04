@@ -1,4 +1,4 @@
-using BlogApp.Data;
+using BlogApp.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace BlogApp.Components.Account

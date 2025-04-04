@@ -1,5 +1,5 @@
 using BlogApp.Client;
-using BlogApp.Data;
+using BlogApp.Data.Entities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

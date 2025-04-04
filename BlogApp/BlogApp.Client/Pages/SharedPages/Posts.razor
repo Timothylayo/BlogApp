@@ -2,7 +2,16 @@
 
 @inject NavigationManager NavigationManager
 
-
+<style>
+	.views{
+		font-size: 12px;
+		color: gray;
+		text-align: right;
+	}
+</style>
+<div class="views">
+	<i class="oi oi-eye"></i>@blogPost.ViewCount.ToString("0##")
+</div>
 <div class="container">
 	<div class="jumbotron jumbotron-fluid mb-3 pl-0 pt-0 pb-0 bg-white position-relative">
 		<div class="h-100 tofront">

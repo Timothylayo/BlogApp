@@ -1,4 +1,5 @@
 ﻿using BlogApp.Data;
+using BlogApp.Data.Entities;
 using BlogAppSharedProject.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
